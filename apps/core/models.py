@@ -12,3 +12,22 @@ class Project(models.Model):
     def __str__(self) -> str:
         """Return the project name for the Django admin and shell."""
         return self.name
+
+
+class Task(models.Model):
+    """A task that belongs to a relocation project."""
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="tasks",
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        """Return the task title for the Django admin and shell."""
+        return self.title
