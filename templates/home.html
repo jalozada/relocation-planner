@@ -1,32 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relocation Planner</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <h1>🚚 Relocation Planner</h1>
+{% block title %}
+Home | Relocation Planner
+{% endblock %}
 
-    <p>
+{% block content %}
+
+<div class="text-center mb-5">
+
+    <h1 class="display-4 fw-bold">
+        Relocation Planner
+    </h1>
+
+    <p class="lead text-muted">
         Open Source • Local First • AI Assisted
     </p>
 
-    <hr>
+</div>
 
-    <h2>System Status</h2>
+<div class="card shadow-sm">
 
-    <ul>
-        <li>✅ Django</li>
-        <li>✅ Python 3.12</li>
-        <li>✅ uv</li>
-        <li>✅ SQLite</li>
-    </ul>
+    <div class="card-header">
+        System Status
+    </div>
 
-    <hr>
+    <div class="card-body">
 
-    <p><strong>Version:</strong> 0.0.1-dev</p>
+        <ul class="list-group list-group-flush">
 
-</body>
-</html>
+            <li class="list-group-item">
+                ✅ Django 6
+            </li>
+
+            <li class="list-group-item">
+                ✅ Python 3.12
+            </li>
+
+            <li class="list-group-item">
+                ✅ uv Package Manager
+            </li>
+
+            <li class="list-group-item">
+                ✅ SQLite
+            </li>
+
+        </ul>
+
+    </div>
+
+</div>
+
+{% endblock %}
