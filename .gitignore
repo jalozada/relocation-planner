@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+
+# Environment Variables
+.env
+
+# Django
+db.sqlite3
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Coverage
+.coverage
+htmlcov/
+
+# Ruff
+.ruff_cache/
+
+# Pytest
+.pytest_cache/
+
+# Misc
+*.log
