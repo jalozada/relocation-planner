@@ -31,3 +31,22 @@ class Task(models.Model):
     def __str__(self) -> str:
         """Return the task title for the Django admin and shell."""
         return self.title
+
+
+class Document(models.Model):
+    """A document required for a relocation project."""
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="documents",
+    )
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    received = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        """Return the document name for the Django admin and shell."""
+        return self.name
