@@ -1,0 +1,15 @@
+[project]
+name = "relocation-planner"
+version = "0.0.1"
+description = "Open-source, local-first relocation planning platform"
+readme = "README.md"
+authors = [
+    { name = "Javier Lozada", email = "jalozada@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "django>=6.0,<6.1",
+]
+
+[tool.uv]
+package = false
