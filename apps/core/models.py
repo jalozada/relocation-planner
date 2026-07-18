@@ -1,3 +1,14 @@
 from django.db import models
 
-# Create your models here.
+
+class Project(models.Model):
+    """A relocation project that groups tasks, documents, and other resources."""
+
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        """Return the project name for the Django admin and shell."""
+        return self.name
