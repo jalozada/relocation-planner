@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+Delete {{ milestone.title }} | Relocation Planner
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h1 class="h2 mb-1">Delete Milestone</h1>
+    <p class="text-muted mb-0">Review this carefully before removing this milestone.</p>
+</div>
+
+<div class="card border-danger shadow-sm">
+    <div class="card-header text-bg-danger">
+        Permanent deletion
+    </div>
+    <div class="card-body">
+        <p class="lead mb-3">
+            Are you sure you want to delete <strong>{{ milestone.title }}</strong>?
+        </p>
+        <p class="text-muted">
+            Tasks assigned to this milestone will remain in {{ milestone.project.name }}, but they will no longer be assigned to a milestone.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-danger" type="submit">Delete Milestone</button>
+                <a class="btn btn-outline-secondary" href="{% url 'core:milestone-detail' milestone.pk %}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

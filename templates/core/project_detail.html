@@ -28,6 +28,7 @@
     <a class="nav-link active" href="{% url 'core:project-detail' project.pk %}">Dashboard</a>
     <a class="nav-link" href="{% url 'core:person-list' project.pk %}">People</a>
     <a class="nav-link" href="{% url 'core:document-list' project.pk %}">Documents</a>
+    <a class="nav-link" href="{% url 'core:milestone-list' project.pk %}">Milestones</a>
     <a class="nav-link" href="{% url 'core:task-list' project.pk %}">Tasks</a>
 </div>
 
@@ -52,18 +53,18 @@
     <div class="col-6 col-lg-3">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <div class="text-muted small">Tasks</div>
-                <div class="display-6 fw-bold">{{ tasks_count }}</div>
-                <div class="small text-muted">{{ completed_tasks_count }} complete • {{ outstanding_tasks_count }} outstanding</div>
+                <div class="text-muted small">Milestones</div>
+                <div class="display-6 fw-bold">{{ milestones_count }}</div>
+                <div class="small text-muted">{{ completed_milestones_count }} complete • {{ outstanding_milestones_count }} open</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-lg-3">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <div class="text-muted small">Open Work</div>
-                <div class="display-6 fw-bold">{{ pending_documents_count|add:outstanding_tasks_count }}</div>
-                <div class="small text-muted">Pending documents and tasks</div>
+                <div class="text-muted small">Tasks</div>
+                <div class="display-6 fw-bold">{{ tasks_count }}</div>
+                <div class="small text-muted">{{ completed_tasks_count }} complete • {{ outstanding_tasks_count }} outstanding</div>
             </div>
         </div>
     </div>
@@ -78,6 +79,45 @@
             <p class="mb-0">{{ project.description }}</p>
         {% else %}
             <p class="mb-0 text-muted">No description provided.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div class="fw-semibold">Milestones</div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'core:milestone-list' project.pk %}">Manage Milestones</a>
+            <a class="btn btn-sm btn-primary" href="{% url 'core:milestone-create' project.pk %}">Add Milestone</a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if recent_milestones %}
+            <div class="row g-3">
+                {% for milestone in recent_milestones %}
+                    <div class="col-12 col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <h2 class="h6 mb-1">
+                                        <a href="{% url 'core:milestone-detail' milestone.pk %}">{{ milestone.title }}</a>
+                                    </h2>
+                                    <p class="text-muted mb-0">
+                                        {% if milestone.target_date %}Target {{ milestone.target_date|date:"M j, Y" }}{% else %}No target date{% endif %}
+                                    </p>
+                                </div>
+                                {% if milestone.completed %}
+                                    <span class="badge text-bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">Open</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No milestones have been added to this project yet.</p>
         {% endif %}
     </div>
 </div>

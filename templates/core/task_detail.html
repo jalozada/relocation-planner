@@ -32,6 +32,9 @@
         {% endif %}
     </div>
     <div class="card-body">
+        {% if task.milestone %}
+            <p class="text-muted">Milestone: <a href="{% url 'core:milestone-detail' task.milestone.pk %}">{{ task.milestone }}</a></p>
+        {% endif %}
         {% if task.description %}
             <p class="mb-0">{{ task.description }}</p>
         {% else %}
