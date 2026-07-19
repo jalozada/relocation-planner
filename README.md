@@ -1,20 +1,35 @@
 # Relocation Planner
 
-Open-source, local-first relocation planning platform.
+Open-source, local-first relocation planning platform built with Django.
 
-## Running browser tests
+## Current Features
 
-Browser tests use `pytest`, `pytest-django`, and `pytest-playwright` with Django's
-`live_server` fixture.
+- ✅ Project management
+- ✅ People management
+- ✅ Document tracking
+- ✅ Task tracking
+- ✅ Relocation templates
+- ✅ Project dashboard
+- ✅ Django Admin integration
+- ✅ Playwright end-to-end browser tests
 
-Install the Chromium browser used by Playwright:
+## Technology
 
-```bash
-uv run playwright install chromium
-```
+- Python
+- Django
+- SQLite
+- Bootstrap 5
+- Playwright
+- pytest
 
-Run the browser tests:
+## Current Release
 
-```bash
-uv run pytest tests/e2e --browser chromium
-```
+**Latest:** v0.2.0
+
+This release introduces reusable relocation templates that automatically create the initial documents and tasks for a new relocation project.
+
+## Project Status
+
+🚧 Active development
+
+The current focus is building a reusable relocation planning platform that can support international moves while remaining local-first and open source.
