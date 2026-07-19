@@ -47,6 +47,56 @@ class DocumentType(models.Model):
         return self.name
 
 
+class RelocationTemplate(models.Model):
+    """A reusable starting point for relocation projects."""
+
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(blank=True)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        """Return the template name for the Django admin and shell."""
+        return self.name
+
+
+class RelocationTemplateDocument(models.Model):
+    """A default document requirement in a relocation template."""
+
+    template = models.ForeignKey(
+        RelocationTemplate,
+        on_delete=models.CASCADE,
+        related_name="document_items",
+    )
+    document_type = models.ForeignKey(
+        DocumentType,
+        on_delete=models.PROTECT,
+        related_name="template_document_items",
+    )
+    description = models.TextField(blank=True)
+
+    def __str__(self) -> str:
+        """Return the template document type name."""
+        return str(self.document_type)
+
+
+class RelocationTemplateTask(models.Model):
+    """A default task in a relocation template."""
+
+    template = models.ForeignKey(
+        RelocationTemplate,
+        on_delete=models.CASCADE,
+        related_name="task_items",
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+
+    def __str__(self) -> str:
+        """Return the template task title."""
+        return self.title
+
+
 class Document(models.Model):
     """A document required for a relocation project."""
 

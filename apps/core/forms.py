@@ -1,14 +1,31 @@
 from django import forms
 
-from .models import Document, DocumentType, Person, Project, Task
+from .models import Document, DocumentType, Person, Project, RelocationTemplate, Task
 
 
 class ProjectForm(forms.ModelForm):
     """Form for creating and updating relocation projects."""
 
+    relocation_template = forms.ModelChoiceField(
+        queryset=RelocationTemplate.objects.none(),
+        required=False,
+        help_text="Optionally start with default documents and tasks.",
+    )
+
     class Meta:
         model = Project
         fields = ["name", "description"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            self.fields.pop("relocation_template")
+            return
+
+        self.fields["relocation_template"].queryset = RelocationTemplate.objects.filter(
+            active=True,
+        ).order_by("name")
 
 
 class PersonForm(forms.ModelForm):

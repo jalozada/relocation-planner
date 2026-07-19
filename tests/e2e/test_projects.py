@@ -1,6 +1,33 @@
 from django.urls import reverse
 from playwright.sync_api import expect
 
+from apps.core.models import (
+    DocumentType,
+    RelocationTemplate,
+    RelocationTemplateDocument,
+    RelocationTemplateTask,
+)
+
+
+def ensure_standard_relocation_template():
+    """Create the template data needed by the browser tests."""
+    document_type, _created = DocumentType.objects.get_or_create(name="Passport")
+    template, _created = RelocationTemplate.objects.get_or_create(
+        name="Standard Relocation",
+        defaults={
+            "description": "Browser test template.",
+            "active": True,
+        },
+    )
+    RelocationTemplateDocument.objects.get_or_create(
+        template=template,
+        document_type=document_type,
+    )
+    RelocationTemplateTask.objects.get_or_create(
+        template=template,
+        title="Review required documents",
+    )
+
 
 def test_create_project_shows_success_and_dashboard(page, app_url):
     """A project can be created through the browser UI."""
@@ -21,3 +48,24 @@ def test_create_project_shows_success_and_dashboard(page, app_url):
     expect(page.get_by_role("heading", name=project_name)).to_be_visible()
     expect(page.get_by_role("link", name="Dashboard")).to_be_visible()
     expect(page.get_by_text("Created by the Playwright browser test.")).to_be_visible()
+
+
+def test_create_project_from_template_populates_dashboard(page, app_url):
+    """A project can be initialized from a relocation template in the browser."""
+    project_name = "Browser Template Project"
+    ensure_standard_relocation_template()
+
+    page.goto(f"{app_url}{reverse('core:project-create')}")
+    page.get_by_label("Name").fill(project_name)
+    page.get_by_label("Description").fill("Created from the standard template.")
+    page.get_by_label("Relocation template").select_option(label="Standard Relocation")
+    page.get_by_role("button", name="Save").click()
+
+    expect(page.get_by_text("Project created successfully.")).to_be_visible()
+    expect(page.get_by_role("heading", name=project_name)).to_be_visible()
+
+    page.get_by_role("link", name="View Project").click()
+
+    expect(page.get_by_role("heading", name=project_name)).to_be_visible()
+    expect(page.get_by_text("Passport")).to_be_visible()
+    expect(page.get_by_text("Review required documents")).to_be_visible()
