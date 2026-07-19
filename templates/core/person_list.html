@@ -12,7 +12,7 @@ People for {{ project.name }} | Relocation Planner
         <p class="text-muted mb-0">{{ project.name }}</p>
     </div>
 
-    <a class="btn btn-primary" href="{% url 'core:person-create' project.pk %}">
+    <a class="btn button-primary" href="{% url 'core:person-create' project.pk %}">
         Add Person
     </a>
 </div>
@@ -34,7 +34,7 @@ People for {{ project.name }} | Relocation Planner
                         <h2 class="h5 mb-1">{{ person }}</h2>
                         <p class="text-muted mb-3">{{ person.get_relationship_display }}</p>
 
-                        <a class="btn btn-outline-primary" href="{% url 'core:person-detail' person.pk %}">
+                        <a class="btn button-outline-primary" href="{% url 'core:person-detail' person.pk %}">
                             View Person
                         </a>
                     </div>
@@ -49,7 +49,7 @@ People for {{ project.name }} | Relocation Planner
             <p class="text-muted mb-4">
                 People help connect documents and planning details to the right person.
             </p>
-            <a class="btn btn-primary" href="{% url 'core:person-create' project.pk %}">
+            <a class="btn button-primary" href="{% url 'core:person-create' project.pk %}">
                 Add Person
             </a>
         </div>

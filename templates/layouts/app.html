@@ -1,0 +1,129 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" x-data="appShell()" x-init="initTheme()" :class="{ 'dark': isDark }">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script>
+        (function () {
+            try {
+                var storedTheme = localStorage.getItem("theme");
+                var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                if (storedTheme === "dark" || (!storedTheme && prefersDark) || (storedTheme === "system" && prefersDark)) {
+                    document.documentElement.classList.add("dark");
+                }
+            } catch (error) {}
+        })();
+    </script>
+
+    <title>{% block title %}Relocation Planner{% endblock %}</title>
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link rel="stylesheet" href="{% static 'build/app.css' %}">
+    <script defer src="{% static 'build/htmx.min.js' %}"></script>
+    <script defer src="{% static 'build/alpine.min.js' %}"></script>
+    <script defer src="{% static 'build/lucide.min.js' %}"></script>
+    <script defer src="{% static 'build/app.js' %}"></script>
+</head>
+
+<body class="app-shell">
+<div x-show="sidebarOpen" x-cloak class="app-sidebar-backdrop" @click="sidebarOpen = false" aria-hidden="true"></div>
+
+<aside
+    class="app-sidebar"
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+    aria-label="Application sidebar"
+>
+    <div class="flex h-full flex-col">
+        <div class="mb-8 flex items-center justify-between">
+            <a class="flex items-center gap-3 text-slate-950 no-underline hover:no-underline dark:text-white" href="{% url 'core:home' %}">
+                <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-600 text-sm font-bold text-white">RP</span>
+                <span>
+                    <span class="block font-semibold">Relocation Planner</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-400">Local-first move planning</span>
+                </span>
+            </a>
+            <button class="btn button-outline-secondary lg:hidden" type="button" @click="sidebarOpen = false" aria-label="Close navigation">
+                {% include "components/icon.html" with name="x" %}
+            </button>
+        </div>
+
+        {% include "partials/navigation.html" %}
+    </div>
+</aside>
+
+<div class="min-h-screen lg:pl-72">
+    <header class="app-header">
+        <div class="flex items-center justify-between gap-3">
+            <button class="btn button-outline-secondary lg:hidden" type="button" @click="sidebarOpen = true" aria-label="Open navigation">
+                {% include "components/icon.html" with name="menu" %}
+            </button>
+
+            <div class="min-w-0">
+                <p class="text-sm font-medium text-slate-950 dark:text-white">{% block shell_title %}Relocation Planner{% endblock %}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Plan, track, and finish the move.</p>
+            </div>
+
+            <div class="relative" x-data="{ open: false }">
+                <button class="btn button-outline-secondary" type="button" @click="open = !open" aria-label="Theme options" :aria-expanded="open.toString()">
+                    {% include "components/icon.html" with name="sun-moon" %}
+                    <span class="hidden sm:inline">Theme</span>
+                </button>
+                <div
+                    x-show="open"
+                    x-cloak
+                    @click.outside="open = false"
+                    class="absolute right-0 mt-2 w-44 rounded-md border border-slate-200 bg-white p-1 shadow-lg dark:border-slate-800 dark:bg-slate-900"
+                >
+                    <button class="w-full rounded px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800" type="button" @click="setTheme('light'); open = false">Light</button>
+                    <button class="w-full rounded px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800" type="button" @click="setTheme('dark'); open = false">Dark</button>
+                    <button class="w-full rounded px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800" type="button" @click="setTheme('system'); open = false">System</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-main" id="main-content" tabindex="-1">
+        {% if messages %}
+            <div class="mb-6 space-y-2" aria-live="polite">
+                {% for message in messages %}
+                    {% include "components/alert.html" with message=message %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+</div>
+
+<script>
+    function appShell() {
+        return {
+            sidebarOpen: false,
+            theme: "system",
+            isDark: false,
+            initTheme() {
+                this.theme = localStorage.getItem("theme") || "system";
+                this.applyTheme();
+                window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+                    if (this.theme === "system") {
+                        this.applyTheme();
+                    }
+                });
+            },
+            setTheme(theme) {
+                this.theme = theme;
+                localStorage.setItem("theme", theme);
+                this.applyTheme();
+            },
+            applyTheme() {
+                this.isDark = this.theme === "dark" || (this.theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+                document.documentElement.classList.toggle("dark", this.isDark);
+            },
+        };
+    }
+</script>
+</body>
+</html>

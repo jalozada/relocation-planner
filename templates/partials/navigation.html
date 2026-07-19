@@ -1,0 +1,40 @@
+{% url 'core:home' as home_url %}
+{% url 'core:project-list' as project_list_url %}
+
+<nav class="space-y-1" aria-label="Primary navigation">
+    {% if request.resolver_match.url_name == "home" %}
+        {% include "components/nav_item.html" with href=home_url label="Dashboard" icon="layout-dashboard" active=True %}
+    {% else %}
+        {% include "components/nav_item.html" with href=home_url label="Dashboard" icon="layout-dashboard" %}
+    {% endif %}
+
+    {% if request.resolver_match.url_name|slice:":7" == "project" %}
+        {% include "components/nav_item.html" with href=project_list_url label="Projects" icon="folder-kanban" active=True %}
+    {% else %}
+        {% include "components/nav_item.html" with href=project_list_url label="Projects" icon="folder-kanban" %}
+    {% endif %}
+
+    {% if request.resolver_match.url_name|slice:":4" == "task" %}
+        {% include "components/nav_item.html" with href=project_list_url label="Tasks" icon="check-square" active=True %}
+    {% else %}
+        {% include "components/nav_item.html" with href=project_list_url label="Tasks" icon="check-square" %}
+    {% endif %}
+
+    {% if request.resolver_match.url_name|slice:":9" == "milestone" %}
+        {% include "components/nav_item.html" with href=project_list_url label="Milestones" icon="flag" active=True %}
+    {% else %}
+        {% include "components/nav_item.html" with href=project_list_url label="Milestones" icon="flag" %}
+    {% endif %}
+
+    {% if request.resolver_match.url_name|slice:":6" == "person" %}
+        {% include "components/nav_item.html" with href=project_list_url label="People" icon="users" active=True %}
+    {% else %}
+        {% include "components/nav_item.html" with href=project_list_url label="People" icon="users" %}
+    {% endif %}
+
+    {% if request.resolver_match.url_name|slice:":8" == "document" %}
+        {% include "components/nav_item.html" with href=project_list_url label="Documents" icon="files" active=True %}
+    {% else %}
+        {% include "components/nav_item.html" with href=project_list_url label="Documents" icon="files" %}
+    {% endif %}
+</nav>

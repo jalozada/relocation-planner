@@ -76,11 +76,11 @@
             </div>
 
             <div class="d-flex gap-2">
-                <button class="btn btn-primary" type="submit">Save</button>
+                <button class="btn button-primary" type="submit">Save</button>
                 {% if object %}
-                    <a class="btn btn-outline-secondary" href="{% url 'core:milestone-detail' object.pk %}">Cancel</a>
+                    <a class="btn button-outline-secondary" href="{% url 'core:milestone-detail' object.pk %}">Cancel</a>
                 {% else %}
-                    <a class="btn btn-outline-secondary" href="{% url 'core:milestone-list' project.pk %}">Cancel</a>
+                    <a class="btn button-outline-secondary" href="{% url 'core:milestone-list' project.pk %}">Cancel</a>
                 {% endif %}
             </div>
         </form>

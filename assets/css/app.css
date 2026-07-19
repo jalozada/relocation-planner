@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+@source "../../templates/**/*.html";
+@source "../../apps/**/*.py";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --color-surface: #ffffff;
+    --color-surface-muted: #f8fafc;
+    --color-border-subtle: #e2e8f0;
+}
+
+@layer base {
+    :root {
+        color-scheme: light;
+    }
+
+    .dark {
+        color-scheme: dark;
+    }
+
+    html {
+        font-family: var(--font-sans);
+    }
+
+    body {
+        @apply bg-slate-50 text-slate-950 antialiased dark:bg-slate-950 dark:text-slate-100;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    a {
+        @apply text-sky-700 underline-offset-4 hover:text-sky-900 hover:underline dark:text-sky-300 dark:hover:text-sky-200;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-sky-500;
+    }
+}
+
+@layer components {
+    .app-shell {
+        @apply min-h-screen bg-slate-50 dark:bg-slate-950;
+    }
+
+    .app-sidebar {
+        @apply fixed inset-y-0 left-0 z-40 w-72 border-r border-slate-200 bg-white px-4 py-5 shadow-sm transition-transform dark:border-slate-800 dark:bg-slate-900 lg:translate-x-0;
+    }
+
+    .app-sidebar-backdrop {
+        @apply fixed inset-0 z-30 bg-slate-950/40 lg:hidden;
+    }
+
+    .app-header {
+        @apply sticky top-0 z-20 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90 sm:px-6 lg:px-8;
+    }
+
+    .app-main {
+        @apply px-4 py-6 sm:px-6 lg:px-8;
+    }
+
+    .container {
+        @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    .card {
+        @apply rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900;
+    }
+
+    .card-body {
+        @apply p-5;
+    }
+
+    .card-header {
+        @apply border-b border-slate-200 px-5 py-3 font-semibold dark:border-slate-800;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-md border border-transparent px-3 py-2 text-sm font-medium no-underline shadow-sm transition hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    }
+
+    .button-sm {
+        @apply px-2.5 py-1.5 text-xs;
+    }
+
+    .button-primary {
+        @apply bg-sky-600 text-white hover:bg-sky-700 focus-visible:outline-sky-600 dark:bg-sky-500 dark:hover:bg-sky-400;
+    }
+
+    .button-danger {
+        @apply bg-rose-600 text-white hover:bg-rose-700 focus-visible:outline-rose-600;
+    }
+
+    .button-outline-primary {
+        @apply border-sky-600 bg-transparent text-sky-700 hover:bg-sky-50 dark:border-sky-400 dark:text-sky-300 dark:hover:bg-sky-950;
+    }
+
+    .button-outline-secondary {
+        @apply border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800;
+    }
+
+    .button-outline-danger {
+        @apply border-rose-600 bg-transparent text-rose-700 hover:bg-rose-50 dark:border-rose-400 dark:text-rose-300 dark:hover:bg-rose-950;
+    }
+
+    .badge {
+        @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    }
+
+    .text-bg-success {
+        @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200;
+    }
+
+    .text-bg-warning {
+        @apply bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200;
+    }
+
+    .text-bg-secondary,
+    .text-bg-light {
+        @apply bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200;
+    }
+
+    .text-bg-danger {
+        @apply bg-rose-600 text-white;
+    }
+
+    .alert {
+        @apply rounded-md border px-4 py-3 text-sm;
+    }
+
+    .alert-success {
+        @apply border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200;
+    }
+
+    .alert-error,
+    .alert-danger {
+        @apply border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200;
+    }
+
+    .alert-info {
+        @apply border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-900 dark:bg-sky-950 dark:text-sky-200;
+    }
+
+    .form-label {
+        @apply mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200;
+    }
+
+    .form-control,
+    .form-select {
+        @apply block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100;
+    }
+
+    .form-check {
+        @apply flex items-center gap-2;
+    }
+
+    .form-check-input {
+        @apply h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500;
+    }
+
+    .form-check-label,
+    .form-text {
+        @apply text-sm text-slate-600 dark:text-slate-300;
+    }
+
+    .invalid-feedback {
+        @apply mt-1 text-sm text-rose-600 dark:text-rose-300;
+    }
+
+    .is-invalid {
+        @apply border-rose-500 focus:border-rose-500 focus:ring-rose-500/20;
+    }
+
+    .nav {
+        @apply flex flex-wrap gap-2;
+    }
+
+    .nav-link {
+        @apply rounded-md px-3 py-2 text-sm font-medium text-slate-600 no-underline hover:bg-slate-100 hover:text-slate-950 hover:no-underline dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white;
+    }
+
+    .nav-link.active {
+        @apply bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200;
+    }
+
+    .list-group {
+        @apply divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 dark:divide-slate-800 dark:border-slate-800;
+    }
+
+    .list-group-item {
+        @apply block bg-white px-4 py-3 text-slate-800 no-underline dark:bg-slate-900 dark:text-slate-100;
+    }
+
+    .list-group-item-action {
+        @apply hover:bg-slate-50 hover:no-underline dark:hover:bg-slate-800;
+    }
+
+    .row {
+        @apply grid gap-4;
+    }
+
+    .col-12,
+    .col-sm-3,
+    .col-sm-9 {
+        @apply min-w-0;
+    }
+
+    .lead {
+        @apply text-lg text-slate-700 dark:text-slate-200;
+    }
+
+    .display-4 {
+        @apply text-5xl;
+    }
+
+    .display-6 {
+        @apply text-4xl;
+    }
+
+    .text-muted {
+        @apply text-slate-500 dark:text-slate-400;
+    }
+}
