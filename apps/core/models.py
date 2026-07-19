@@ -33,6 +33,20 @@ class Task(models.Model):
         return self.title
 
 
+class DocumentType(models.Model):
+    """A reusable type for standardizing relocation document names."""
+
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(blank=True)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        """Return the document type name for the Django admin and shell."""
+        return self.name
+
+
 class Document(models.Model):
     """A document required for a relocation project."""
 
@@ -48,7 +62,11 @@ class Document(models.Model):
         blank=True,
         related_name="documents",
     )
-    name = models.CharField(max_length=200)
+    document_type = models.ForeignKey(
+        DocumentType,
+        on_delete=models.PROTECT,
+        related_name="documents",
+    )
     description = models.TextField(blank=True)
     received = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -56,7 +74,9 @@ class Document(models.Model):
 
     def __str__(self) -> str:
         """Return the document name for the Django admin and shell."""
-        return self.name
+        if self.person:
+            return f"{self.document_type} ({self.person})"
+        return str(self.document_type)
 
 
 class Person(models.Model):

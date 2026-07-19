@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+People for {{ project.name }} | Relocation Planner
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">People</h1>
+        <p class="text-muted mb-0">{{ project.name }}</p>
+    </div>
+
+    <a class="btn btn-primary" href="{% url 'core:person-create' project.pk %}">
+        Add Person
+    </a>
+</div>
+
+{% if people %}
+    <div class="row g-4">
+        {% for person in people %}
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h5 mb-1">{{ person }}</h2>
+                        <p class="text-muted mb-3">{{ person.get_relationship_display }}</p>
+
+                        <a class="btn btn-outline-primary" href="{% url 'core:person-detail' person.pk %}">
+                            View Person
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <h2 class="h4 mb-3">Add the people moving with this project</h2>
+            <p class="text-muted mb-4">
+                People help connect documents and planning details to the right person.
+            </p>
+            <a class="btn btn-primary" href="{% url 'core:person-create' project.pk %}">
+                Add Person
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{% url 'core:project-detail' project.pk %}">Back to project</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ project.name }} | Relocation Planner
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">{{ project.name }}</h1>
+        <p class="text-muted mb-0">
+            Created {{ project.created_at|date:"M j, Y" }} • Updated {{ project.updated_at|date:"M j, Y" }}
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{% url 'core:project-update' project.pk %}">
+            Edit
+        </a>
+        <a class="btn btn-outline-danger" href="{% url 'core:project-delete' project.pk %}">
+            Delete
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white fw-semibold">
+        Project Notes
+    </div>
+    <div class="card-body">
+        {% if project.description %}
+            <p class="mb-0">{{ project.description }}</p>
+        {% else %}
+            <p class="mb-0 text-muted">No description provided.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div class="fw-semibold">People</div>
+        <a class="btn btn-sm btn-primary" href="{% url 'core:person-create' project.pk %}">
+            Add Person
+        </a>
+    </div>
+    <div class="card-body">
+        {% if project.people.all %}
+            <div class="row g-3">
+                {% for person in project.people.all %}
+                    <div class="col-12 col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <h2 class="h6 mb-1">
+                                        <a href="{% url 'core:person-detail' person.pk %}">{{ person }}</a>
+                                    </h2>
+                                    <p class="text-muted mb-0">{{ person.get_relationship_display }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No people have been added to this project yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'core:project-list' %}">Back to projects</a>
+</div>
+
+{% endblock %}

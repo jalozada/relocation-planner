@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ person }} | Relocation Planner
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">{{ person }}</h1>
+        <p class="text-muted mb-0">{{ person.get_relationship_display }} in {{ person.project.name }}</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{% url 'core:person-update' person.pk %}">
+            Edit
+        </a>
+        <a class="btn btn-outline-danger" href="{% url 'core:person-delete' person.pk %}">
+            Delete
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white fw-semibold">
+        Person Details
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">First name</dt>
+            <dd class="col-sm-9">{{ person.first_name }}</dd>
+
+            <dt class="col-sm-3">Last name</dt>
+            <dd class="col-sm-9">{{ person.last_name }}</dd>
+
+            <dt class="col-sm-3">Relationship</dt>
+            <dd class="col-sm-9">{{ person.get_relationship_display }}</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'core:person-list' person.project.pk %}">Back to people</a>
+</div>
+
+{% endblock %}
