@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db import transaction
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -7,6 +8,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 
 from .forms import DocumentForm, PersonForm, ProjectForm, TaskForm
 from .models import Document, Person, Project, Task
+from .services import apply_relocation_template
 
 
 def home(request):
@@ -68,6 +70,15 @@ class ProjectCreateView(SuccessMessageMixin, CreateView):
     template_name = "core/project_form.html"
     success_url = reverse_lazy("core:project-list")
     success_message = "Project created successfully."
+
+    def form_valid(self, form):
+        """Create the project and apply the selected relocation template."""
+        with transaction.atomic():
+            response = super().form_valid(form)
+            relocation_template = form.cleaned_data.get("relocation_template")
+            if relocation_template:
+                apply_relocation_template(self.object, relocation_template)
+        return response
 
 
 class ProjectUpdateView(SuccessMessageMixin, UpdateView):

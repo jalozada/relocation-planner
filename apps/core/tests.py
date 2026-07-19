@@ -1,8 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .forms import DocumentForm
-from .models import Document, DocumentType, Person, Project, Task
+from .forms import DocumentForm, ProjectForm
+from .models import Document, DocumentType, Person, Project, RelocationTemplate, Task
+from .services import apply_relocation_template
 
 
 class ProjectCRUDTests(TestCase):
@@ -423,3 +424,97 @@ class TaskCRUDTests(TestCase):
         self.assertRedirects(response, reverse("core:task-detail", kwargs={"pk": task.pk}))
         task.refresh_from_db()
         self.assertEqual(task.project, project)
+
+
+class RelocationTemplateTests(TestCase):
+    """Tests for creating projects from relocation templates."""
+
+    def test_apply_relocation_template_creates_project_level_documents(self):
+        """Applying a template creates project-level pending documents."""
+        project = Project.objects.create(name="Template project")
+        template = RelocationTemplate.objects.get(name="Standard Relocation")
+
+        apply_relocation_template(project, template)
+
+        self.assertGreater(project.documents.count(), 0)
+        self.assertTrue(project.documents.filter(person__isnull=True, received=False).exists())
+
+    def test_apply_relocation_template_creates_tasks(self):
+        """Applying a template creates outstanding tasks."""
+        project = Project.objects.create(name="Template project")
+        template = RelocationTemplate.objects.get(name="Standard Relocation")
+
+        apply_relocation_template(project, template)
+
+        self.assertGreater(project.tasks.count(), 0)
+        self.assertTrue(project.tasks.filter(completed=False).exists())
+
+    def test_project_create_with_template_creates_documents_and_tasks(self):
+        """Creating a project with a template initializes documents and tasks."""
+        template = RelocationTemplate.objects.get(name="Standard Relocation")
+
+        response = self.client.post(
+            reverse("core:project-create"),
+            {
+                "name": "Templated project",
+                "description": "Created from a template.",
+                "relocation_template": template.pk,
+            },
+        )
+
+        project = Project.objects.get(name="Templated project")
+        self.assertRedirects(response, reverse("core:project-list"))
+        self.assertGreater(project.documents.count(), 0)
+        self.assertGreater(project.tasks.count(), 0)
+
+    def test_project_create_without_template_still_succeeds(self):
+        """Creating a project without a template does not create defaults."""
+        response = self.client.post(
+            reverse("core:project-create"),
+            {
+                "name": "Blank project",
+                "description": "No template.",
+                "relocation_template": "",
+            },
+        )
+
+        project = Project.objects.get(name="Blank project")
+        self.assertRedirects(response, reverse("core:project-list"))
+        self.assertEqual(project.documents.count(), 0)
+        self.assertEqual(project.tasks.count(), 0)
+
+    def test_inactive_templates_are_not_offered_in_project_form(self):
+        """Inactive templates are hidden from the project form."""
+        inactive_template = RelocationTemplate.objects.create(name="Inactive Template", active=False)
+
+        form = ProjectForm()
+
+        self.assertNotIn(inactive_template, form.fields["relocation_template"].queryset)
+
+    def test_relocation_template_field_is_removed_when_editing_project(self):
+        """Project edit forms do not expose template initialization."""
+        project = Project.objects.create(name="Existing project")
+
+        form = ProjectForm(instance=project)
+
+        self.assertNotIn("relocation_template", form.fields)
+
+    def test_project_update_does_not_apply_template(self):
+        """Updating a project ignores template data."""
+        project = Project.objects.create(name="Existing project")
+        template = RelocationTemplate.objects.get(name="Standard Relocation")
+
+        response = self.client.post(
+            reverse("core:project-update", kwargs={"pk": project.pk}),
+            {
+                "name": "Existing project updated",
+                "description": "Updated.",
+                "relocation_template": template.pk,
+            },
+        )
+
+        self.assertRedirects(response, reverse("core:project-detail", kwargs={"pk": project.pk}))
+        project.refresh_from_db()
+        self.assertEqual(project.name, "Existing project updated")
+        self.assertEqual(project.documents.count(), 0)
+        self.assertEqual(project.tasks.count(), 0)

@@ -47,6 +47,30 @@
                 {% endfor %}
             </div>
 
+            {% if not object %}
+                <div class="mb-4">
+                    <label class="form-label" for="{{ form.relocation_template.id_for_label }}">Relocation template</label>
+                    <select
+                        name="{{ form.relocation_template.html_name }}"
+                        id="{{ form.relocation_template.id_for_label }}"
+                        class="form-select{% if form.relocation_template.errors %} is-invalid{% endif %}"
+                    >
+                        <option value="">No template</option>
+                        {% for template in form.relocation_template.field.queryset %}
+                            <option value="{{ template.pk }}"{% if form.relocation_template.value|stringformat:"s" == template.pk|stringformat:"s" %} selected{% endif %}>
+                                {{ template.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.relocation_template.help_text %}
+                        <div class="form-text">{{ form.relocation_template.help_text }}</div>
+                    {% endif %}
+                    {% for error in form.relocation_template.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <div class="d-flex gap-2">
                 <button class="btn btn-primary" type="submit">Save</button>
                 {% if object %}
