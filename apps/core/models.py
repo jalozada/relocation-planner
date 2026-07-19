@@ -41,6 +41,13 @@ class Document(models.Model):
         on_delete=models.CASCADE,
         related_name="documents",
     )
+    person = models.ForeignKey(
+        "Person",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="documents",
+    )
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     received = models.BooleanField(default=False)
