@@ -1,4 +1,41 @@
-from .models import Document, RelocationTemplate, Task
+from django.utils.text import slugify
+
+from .models import (
+    Document,
+    RelocationTemplate,
+    Task,
+    Workstream,
+)
+
+DEFAULT_WORKSTREAMS = [
+    ("Documents", "file-text", "blue"),
+    ("Medical", "heart-pulse", "red"),
+    ("School", "graduation-cap", "indigo"),
+    ("Finance", "wallet", "green"),
+    ("Housing", "house", "amber"),
+    ("Packing", "package", "orange"),
+    ("Vehicles", "car", "slate"),
+    ("Pets", "paw-print", "pink"),
+    ("Departure", "plane-takeoff", "purple"),
+    ("Arrival", "map-pin", "teal"),
+]
+
+def create_default_workstreams(project):
+    """Create default workstreams for a project."""
+
+    Workstream.objects.bulk_create(
+        [
+            Workstream(
+                project=project,
+                name=name,
+                slug=slugify(name),
+                icon=icon,
+                color=color,
+                display_order=index,
+            )
+            for index, (name, icon, color) in enumerate(DEFAULT_WORKSTREAMS)
+        ]
+    )
 
 
 def apply_relocation_template(project, template: RelocationTemplate) -> None:

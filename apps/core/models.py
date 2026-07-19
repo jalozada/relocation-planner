@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 
+
 class Project(models.Model):
     """A relocation project that groups tasks, documents, and other resources."""
 
@@ -47,6 +48,15 @@ class Task(models.Model):
         on_delete=models.CASCADE,
         related_name="tasks",
     )
+
+    workstream = models.ForeignKey(
+        "Workstream",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+    )
+
     milestone = models.ForeignKey(
         "Milestone",
         on_delete=models.SET_NULL,
@@ -54,6 +64,7 @@ class Task(models.Model):
         null=True,
         related_name="tasks",
     )
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     completed = models.BooleanField(default=False)
