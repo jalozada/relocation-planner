@@ -1,9 +1,10 @@
 from django.contrib import admin
 
-from .models import DocumentType, RelocationTemplate, RelocationTemplateDocument, RelocationTemplateTask
+from .models import DocumentType, Milestone, RelocationTemplate, RelocationTemplateDocument, RelocationTemplateTask
 
 
 admin.site.register(DocumentType)
+admin.site.register(Milestone)
 
 
 class RelocationTemplateDocumentInline(admin.TabularInline):

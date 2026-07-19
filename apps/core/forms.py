@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Document, DocumentType, Person, Project, RelocationTemplate, Task
+from .models import Document, DocumentType, Milestone, Person, Project, RelocationTemplate, Task
 
 
 class ProjectForm(forms.ModelForm):
@@ -63,4 +63,21 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ["title", "description", "completed"]
+        fields = ["title", "description", "milestone", "completed"]
+
+    def __init__(self, *args, project, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["milestone"].queryset = project.milestones.order_by("target_date", "title")
+        self.fields["milestone"].required = False
+
+
+class MilestoneForm(forms.ModelForm):
+    """Form for creating and updating project milestones."""
+
+    class Meta:
+        model = Milestone
+        fields = ["title", "description", "target_date", "completed"]
+        widgets = {
+            "target_date": forms.DateInput(attrs={"type": "date"}),
+        }

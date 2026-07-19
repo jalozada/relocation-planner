@@ -6,9 +6,9 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
-from .forms import DocumentForm, PersonForm, ProjectForm, TaskForm
-from .models import Document, Person, Project, Task
-from .services import apply_relocation_template
+from .forms import DocumentForm, MilestoneForm, PersonForm, ProjectForm, TaskForm
+from .models import Document, Milestone, Person, Project, Task
+from .services import apply_relocation_template, build_project_dashboard_context
 
 
 def home(request):
@@ -34,31 +34,18 @@ class ProjectDetailView(DetailView):
 
     def get_queryset(self):
         """Load related dashboard data for the project."""
-        return Project.objects.prefetch_related("people", "documents__document_type", "documents__person", "tasks")
+        return Project.objects.prefetch_related(
+            "people",
+            "documents__document_type",
+            "documents__person",
+            "tasks__milestone",
+            "milestones",
+        )
 
     def get_context_data(self, **kwargs):
         """Add dashboard counts and summaries to the template context."""
         context = super().get_context_data(**kwargs)
-        project = self.object
-
-        project_people = project.people.all()
-        project_documents = project.documents.all()
-        project_tasks = project.tasks.all()
-
-        context["people_count"] = len(project_people)
-        context["documents_count"] = len(project_documents)
-        context["received_documents_count"] = sum(1 for document in project_documents if document.received)
-        context["pending_documents_count"] = context["documents_count"] - context["received_documents_count"]
-        context["tasks_count"] = len(project_tasks)
-        context["completed_tasks_count"] = sum(1 for task in project_tasks if task.completed)
-        context["outstanding_tasks_count"] = context["tasks_count"] - context["completed_tasks_count"]
-        context["recent_people"] = sorted(project_people, key=lambda person: person.created_at, reverse=True)[:4]
-        context["recent_documents"] = sorted(
-            project_documents,
-            key=lambda document: document.updated_at,
-            reverse=True,
-        )[:4]
-        context["recent_tasks"] = sorted(project_tasks, key=lambda task: task.updated_at, reverse=True)[:4]
+        context.update(build_project_dashboard_context(self.object))
         return context
 
 
@@ -334,6 +321,117 @@ class DocumentDeleteView(DeleteView):
         return super().form_valid(form)
 
 
+class MilestoneListView(ListView):
+    """List milestones for a relocation project."""
+
+    model = Milestone
+    template_name = "core/milestone_list.html"
+    context_object_name = "milestones"
+
+    def dispatch(self, request, *args, **kwargs):
+        """Store the parent project for this milestone view."""
+        self.project = get_object_or_404(Project, pk=kwargs["project_pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        """Return milestones for the current project."""
+        return self.project.milestones.order_by("completed", "target_date", "title")
+
+    def get_context_data(self, **kwargs):
+        """Add the parent project to the template context."""
+        context = super().get_context_data(**kwargs)
+        context["project"] = self.project
+        return context
+
+
+class MilestoneDetailView(DetailView):
+    """Show details for a project milestone."""
+
+    model = Milestone
+    template_name = "core/milestone_detail.html"
+    context_object_name = "milestone"
+
+    def get_queryset(self):
+        """Return milestones with their projects loaded."""
+        return Milestone.objects.select_related("project").prefetch_related("tasks")
+
+
+class MilestoneCreateView(SuccessMessageMixin, CreateView):
+    """Create a project milestone."""
+
+    model = Milestone
+    form_class = MilestoneForm
+    template_name = "core/milestone_form.html"
+    success_message = "Milestone added successfully."
+
+    def dispatch(self, request, *args, **kwargs):
+        """Store the parent project for this milestone view."""
+        self.project = get_object_or_404(Project, pk=kwargs["project_pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Attach the new milestone to the parent project."""
+        form.instance.project = self.project
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        """Add the parent project to the template context."""
+        context = super().get_context_data(**kwargs)
+        context["project"] = self.project
+        return context
+
+    def get_success_url(self):
+        """Return the milestone detail URL after a successful create."""
+        return reverse_lazy("core:milestone-detail", kwargs={"pk": self.object.pk})
+
+
+class MilestoneUpdateView(SuccessMessageMixin, UpdateView):
+    """Update a project milestone."""
+
+    model = Milestone
+    form_class = MilestoneForm
+    template_name = "core/milestone_form.html"
+    success_message = "Milestone updated successfully."
+
+    def get_queryset(self):
+        """Return milestones with their projects loaded."""
+        return Milestone.objects.select_related("project")
+
+    def get_context_data(self, **kwargs):
+        """Add the parent project to the template context."""
+        context = super().get_context_data(**kwargs)
+        context["project"] = self.object.project
+        return context
+
+    def get_success_url(self):
+        """Return the milestone detail URL after a successful update."""
+        return reverse_lazy("core:milestone-detail", kwargs={"pk": self.object.pk})
+
+
+class MilestoneDeleteView(DeleteView):
+    """Delete a project milestone."""
+
+    model = Milestone
+    template_name = "core/milestone_confirm_delete.html"
+    context_object_name = "milestone"
+
+    def get_queryset(self):
+        """Return milestones with their projects loaded."""
+        return Milestone.objects.select_related("project")
+
+    def get_success_url(self):
+        """Return the project milestones URL after a successful delete."""
+        return reverse_lazy(
+            "core:milestone-list",
+            kwargs={"project_pk": self.object.project.pk},
+        )
+
+    def form_valid(self, form):
+        """Show a success message after deleting the milestone."""
+        messages.success(self.request, "Milestone deleted successfully.")
+        return super().form_valid(form)
+
+
 class TaskListView(ListView):
     """List tasks for a relocation project."""
 
@@ -348,7 +446,7 @@ class TaskListView(ListView):
 
     def get_queryset(self):
         """Return tasks for the current project."""
-        return self.project.tasks.order_by("completed", "title")
+        return self.project.tasks.select_related("milestone").order_by("completed", "title")
 
     def get_context_data(self, **kwargs):
         """Add the parent project to the template context."""
@@ -366,7 +464,7 @@ class TaskDetailView(DetailView):
 
     def get_queryset(self):
         """Return tasks with their projects loaded."""
-        return Task.objects.select_related("project")
+        return Task.objects.select_related("project", "milestone")
 
 
 class TaskCreateView(SuccessMessageMixin, CreateView):
@@ -386,6 +484,12 @@ class TaskCreateView(SuccessMessageMixin, CreateView):
         """Attach the new task to the parent project."""
         form.instance.project = self.project
         return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        """Pass the parent project to the task form."""
+        kwargs = super().get_form_kwargs()
+        kwargs["project"] = self.project
+        return kwargs
 
     def get_context_data(self, **kwargs):
         """Add the parent project to the template context."""
@@ -408,7 +512,13 @@ class TaskUpdateView(SuccessMessageMixin, UpdateView):
 
     def get_queryset(self):
         """Return tasks with their projects loaded."""
-        return Task.objects.select_related("project")
+        return Task.objects.select_related("project", "milestone")
+
+    def get_form_kwargs(self):
+        """Pass the task project to the task form."""
+        kwargs = super().get_form_kwargs()
+        kwargs["project"] = self.object.project
+        return kwargs
 
     def get_context_data(self, **kwargs):
         """Add the parent project to the template context."""

@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
 {% block title %}
-Tasks for {{ project.name }} | Relocation Planner
+Milestones for {{ project.name }} | Relocation Planner
 {% endblock %}
 
 {% block content %}
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h1 class="h2 mb-1">Tasks</h1>
+        <h1 class="h2 mb-1">Milestones</h1>
         <p class="text-muted mb-0">{{ project.name }}</p>
     </div>
 
-    <a class="btn btn-primary" href="{% url 'core:task-create' project.pk %}">
-        Add Task
+    <a class="btn btn-primary" href="{% url 'core:milestone-create' project.pk %}">
+        Add Milestone
     </a>
 </div>
 
@@ -21,35 +21,36 @@ Tasks for {{ project.name }} | Relocation Planner
     <a class="nav-link" href="{% url 'core:project-detail' project.pk %}">Dashboard</a>
     <a class="nav-link" href="{% url 'core:person-list' project.pk %}">People</a>
     <a class="nav-link" href="{% url 'core:document-list' project.pk %}">Documents</a>
-    <a class="nav-link" href="{% url 'core:milestone-list' project.pk %}">Milestones</a>
-    <a class="nav-link active" href="{% url 'core:task-list' project.pk %}">Tasks</a>
+    <a class="nav-link active" href="{% url 'core:milestone-list' project.pk %}">Milestones</a>
+    <a class="nav-link" href="{% url 'core:task-list' project.pk %}">Tasks</a>
 </div>
 
-{% if tasks %}
+{% if milestones %}
     <div class="row g-4">
-        {% for task in tasks %}
+        {% for milestone in milestones %}
             <div class="col-12 col-md-6 col-xl-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
-                            <h2 class="h5 mb-0">{{ task.title }}</h2>
-                            {% if task.completed %}
+                            <h2 class="h5 mb-0">{{ milestone.title }}</h2>
+                            {% if milestone.completed %}
                                 <span class="badge text-bg-success">Complete</span>
                             {% else %}
-                                <span class="badge text-bg-secondary">Outstanding</span>
+                                <span class="badge text-bg-secondary">Open</span>
                             {% endif %}
                         </div>
 
-                        {% if task.description %}
-                            <p class="card-text text-muted">{{ task.description }}</p>
-                        {% endif %}
-                        {% if task.milestone %}
-                            <p class="small text-muted">Milestone: {{ task.milestone }}</p>
+                        <p class="text-muted mb-2">
+                            {% if milestone.target_date %}Target {{ milestone.target_date|date:"M j, Y" }}{% else %}No target date{% endif %}
+                        </p>
+
+                        {% if milestone.description %}
+                            <p class="card-text text-muted">{{ milestone.description }}</p>
                         {% endif %}
 
                         <div class="mt-auto">
-                            <a class="btn btn-outline-primary" href="{% url 'core:task-detail' task.pk %}">
-                                View Task
+                            <a class="btn btn-outline-primary" href="{% url 'core:milestone-detail' milestone.pk %}">
+                                View Milestone
                             </a>
                         </div>
                     </div>
@@ -60,12 +61,12 @@ Tasks for {{ project.name }} | Relocation Planner
 {% else %}
     <div class="card border-0 shadow-sm">
         <div class="card-body text-center py-5">
-            <h2 class="h4 mb-3">Add the first task</h2>
+            <h2 class="h4 mb-3">Add the first milestone</h2>
             <p class="text-muted mb-4">
-                Tasks keep the relocation moving from planning to completion.
+                Milestones help break the relocation into major phases.
             </p>
-            <a class="btn btn-primary" href="{% url 'core:task-create' project.pk %}">
-                Add Task
+            <a class="btn btn-primary" href="{% url 'core:milestone-create' project.pk %}">
+                Add Milestone
             </a>
         </div>
     </div>

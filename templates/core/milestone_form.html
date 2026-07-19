@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
 {% block title %}
-{% if object %}Edit Task{% else %}Add Task{% endif %} | Relocation Planner
+{% if object %}Edit Milestone{% else %}Add Milestone{% endif %} | Relocation Planner
 {% endblock %}
 
 {% block content %}
 
 <div class="mb-4">
-    <h1 class="h2 mb-1">{% if object %}Edit Task{% else %}Add Task{% endif %}</h1>
+    <h1 class="h2 mb-1">{% if object %}Edit Milestone{% else %}Add Milestone{% endif %}</h1>
     <p class="text-muted mb-0">
-        {% if object %}Update task details for {{ object.project.name }}.{% else %}Add a task to {{ project.name }}.{% endif %}
+        {% if object %}Update milestone details for {{ object.project.name }}.{% else %}Add a milestone to {{ project.name }}.{% endif %}
     </p>
 </div>
 
@@ -35,6 +35,20 @@
             </div>
 
             <div class="mb-3">
+                <label class="form-label" for="{{ form.target_date.id_for_label }}">Target date</label>
+                <input
+                    type="date"
+                    name="{{ form.target_date.html_name }}"
+                    id="{{ form.target_date.id_for_label }}"
+                    value="{{ form.target_date.value|date:'Y-m-d'|default_if_none:'' }}"
+                    class="form-control{% if form.target_date.errors %} is-invalid{% endif %}"
+                >
+                {% for error in form.target_date.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
                 <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
                 <textarea
                     name="{{ form.description.html_name }}"
@@ -43,25 +57,6 @@
                     rows="5"
                 >{{ form.description.value|default_if_none:'' }}</textarea>
                 {% for error in form.description.errors %}
-                    <div class="invalid-feedback">{{ error }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label" for="{{ form.milestone.id_for_label }}">Milestone</label>
-                <select
-                    name="{{ form.milestone.html_name }}"
-                    id="{{ form.milestone.id_for_label }}"
-                    class="form-select{% if form.milestone.errors %} is-invalid{% endif %}"
-                >
-                    <option value="">No milestone</option>
-                    {% for milestone in form.milestone.field.queryset %}
-                        <option value="{{ milestone.pk }}"{% if form.milestone.value|stringformat:"s" == milestone.pk|stringformat:"s" %} selected{% endif %}>
-                            {{ milestone.title }}
-                        </option>
-                    {% endfor %}
-                </select>
-                {% for error in form.milestone.errors %}
                     <div class="invalid-feedback">{{ error }}</div>
                 {% endfor %}
             </div>
@@ -83,9 +78,9 @@
             <div class="d-flex gap-2">
                 <button class="btn btn-primary" type="submit">Save</button>
                 {% if object %}
-                    <a class="btn btn-outline-secondary" href="{% url 'core:task-detail' object.pk %}">Cancel</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'core:milestone-detail' object.pk %}">Cancel</a>
                 {% else %}
-                    <a class="btn btn-outline-secondary" href="{% url 'core:task-list' project.pk %}">Cancel</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'core:milestone-list' project.pk %}">Cancel</a>
                 {% endif %}
             </div>
         </form>

@@ -22,6 +22,13 @@ class Task(models.Model):
         on_delete=models.CASCADE,
         related_name="tasks",
     )
+    milestone = models.ForeignKey(
+        "Milestone",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="tasks",
+    )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     completed = models.BooleanField(default=False)
@@ -30,6 +37,26 @@ class Task(models.Model):
 
     def __str__(self) -> str:
         """Return the task title for the Django admin and shell."""
+        return self.title
+
+
+class Milestone(models.Model):
+    """A project milestone for tracking major relocation phases."""
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="milestones",
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    target_date = models.DateField(blank=True, null=True)
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        """Return the milestone title for the Django admin and shell."""
         return self.title
 
 

@@ -69,3 +69,31 @@ def test_create_project_from_template_populates_dashboard(page, app_url):
     expect(page.get_by_role("heading", name=project_name)).to_be_visible()
     expect(page.get_by_text("Passport")).to_be_visible()
     expect(page.get_by_text("Review required documents")).to_be_visible()
+
+
+def test_create_project_milestone_updates_dashboard(page, app_url):
+    """A milestone can be added to a project in the browser."""
+    project_name = "Browser Milestone Project"
+    milestone_title = "Arrive in destination city"
+
+    page.goto(f"{app_url}{reverse('core:project-create')}")
+    page.get_by_label("Name").fill(project_name)
+    page.get_by_label("Description").fill("Project with a milestone.")
+    page.get_by_role("button", name="Save").click()
+
+    page.get_by_role("link", name="View Project").click()
+    page.get_by_role("link", name="Add Milestone").click()
+
+    page.get_by_label("Title").fill(milestone_title)
+    page.get_by_label("Target date").fill("2026-08-15")
+    page.get_by_label("Description").fill("Land and get settled.")
+    page.get_by_role("button", name="Save").click()
+
+    expect(page.get_by_text("Milestone added successfully.")).to_be_visible()
+    expect(page.get_by_role("heading", name=milestone_title)).to_be_visible()
+
+    page.get_by_role("link", name="Back to milestones").click()
+    expect(page.get_by_text(milestone_title)).to_be_visible()
+
+    page.get_by_role("link", name="Dashboard", exact=True).click()
+    expect(page.get_by_text(milestone_title)).to_be_visible()

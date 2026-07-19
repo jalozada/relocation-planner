@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .forms import DocumentForm, ProjectForm
-from .models import Document, DocumentType, Person, Project, RelocationTemplate, Task
+from .models import Document, DocumentType, Milestone, Person, Project, RelocationTemplate, Task
 from .services import apply_relocation_template
 
 
@@ -140,6 +140,8 @@ class ProjectDashboardTests(TestCase):
         Document.objects.create(project=project, document_type=document_type, received=False)
         Task.objects.create(project=project, title="Complete task", completed=True)
         Task.objects.create(project=project, title="Open task", completed=False)
+        Milestone.objects.create(project=project, title="Arrival", completed=True)
+        Milestone.objects.create(project=project, title="Documents ready", completed=False)
 
         response = self.client.get(reverse("core:project-detail", kwargs={"pk": project.pk}))
 
@@ -151,6 +153,9 @@ class ProjectDashboardTests(TestCase):
         self.assertEqual(response.context["tasks_count"], 2)
         self.assertEqual(response.context["completed_tasks_count"], 1)
         self.assertEqual(response.context["outstanding_tasks_count"], 1)
+        self.assertEqual(response.context["milestones_count"], 2)
+        self.assertEqual(response.context["completed_milestones_count"], 1)
+        self.assertEqual(response.context["outstanding_milestones_count"], 1)
 
 
 class DocumentCRUDTests(TestCase):
@@ -362,18 +367,21 @@ class TaskCRUDTests(TestCase):
     def test_task_create_assigns_project_from_url(self):
         """Creating a task assigns the project from the nested URL."""
         project = Project.objects.create(name="Task project")
+        milestone = Milestone.objects.create(project=project, title="Planning")
 
         response = self.client.post(
             reverse("core:task-create", kwargs={"project_pk": project.pk}),
             {
                 "title": "Gather paperwork",
                 "description": "Find the folder.",
+                "milestone": milestone.pk,
             },
         )
 
         task = Task.objects.get(title="Gather paperwork")
         self.assertRedirects(response, reverse("core:task-detail", kwargs={"pk": task.pk}))
         self.assertEqual(task.project, project)
+        self.assertEqual(task.milestone, milestone)
         self.assertFalse(task.completed)
 
     def test_task_update_succeeds(self):
@@ -424,6 +432,106 @@ class TaskCRUDTests(TestCase):
         self.assertRedirects(response, reverse("core:task-detail", kwargs={"pk": task.pk}))
         task.refresh_from_db()
         self.assertEqual(task.project, project)
+
+    def test_task_create_rejects_cross_project_milestone(self):
+        """Task create rejects a milestone from another project."""
+        project = Project.objects.create(name="Task project")
+        other_project = Project.objects.create(name="Other project")
+        other_milestone = Milestone.objects.create(project=other_project, title="Other milestone")
+
+        response = self.client.post(
+            reverse("core:task-create", kwargs={"project_pk": project.pk}),
+            {
+                "title": "Invalid milestone task",
+                "description": "",
+                "milestone": other_milestone.pk,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Task.objects.filter(title="Invalid milestone task").exists())
+
+
+class MilestoneCRUDTests(TestCase):
+    """Tests for milestone CRUD views."""
+
+    def test_milestone_list_returns_http_200(self):
+        """The per-project milestone list page loads successfully."""
+        project = Project.objects.create(name="Milestone project")
+
+        response = self.client.get(reverse("core:milestone-list", kwargs={"project_pk": project.pk}))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_milestone_detail_returns_http_200(self):
+        """The milestone detail page loads successfully."""
+        project = Project.objects.create(name="Milestone project")
+        milestone = Milestone.objects.create(project=project, title="Arrival")
+
+        response = self.client.get(reverse("core:milestone-detail", kwargs={"pk": milestone.pk}))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_milestone_create_assigns_project_from_url(self):
+        """Creating a milestone assigns the project from the nested URL."""
+        project = Project.objects.create(name="Milestone project")
+
+        response = self.client.post(
+            reverse("core:milestone-create", kwargs={"project_pk": project.pk}),
+            {
+                "title": "Arrival",
+                "description": "Arrive in the destination city.",
+                "target_date": "2026-08-15",
+            },
+        )
+
+        milestone = Milestone.objects.get(title="Arrival")
+        self.assertRedirects(response, reverse("core:milestone-detail", kwargs={"pk": milestone.pk}))
+        self.assertEqual(milestone.project, project)
+        self.assertEqual(milestone.description, "Arrive in the destination city.")
+        self.assertEqual(milestone.target_date.isoformat(), "2026-08-15")
+
+    def test_milestone_update_succeeds(self):
+        """A milestone can be updated through the update view."""
+        project = Project.objects.create(name="Milestone project")
+        milestone = Milestone.objects.create(project=project, title="Old milestone")
+
+        response = self.client.post(
+            reverse("core:milestone-update", kwargs={"pk": milestone.pk}),
+            {
+                "title": "Updated milestone",
+                "description": "Updated notes.",
+                "target_date": "2026-09-01",
+                "completed": "on",
+            },
+        )
+
+        self.assertRedirects(response, reverse("core:milestone-detail", kwargs={"pk": milestone.pk}))
+        milestone.refresh_from_db()
+        self.assertEqual(milestone.title, "Updated milestone")
+        self.assertTrue(milestone.completed)
+
+    def test_milestone_delete_succeeds(self):
+        """A milestone can be deleted through the delete view."""
+        project = Project.objects.create(name="Milestone project")
+        milestone = Milestone.objects.create(project=project, title="Delete milestone")
+
+        response = self.client.post(reverse("core:milestone-delete", kwargs={"pk": milestone.pk}))
+
+        self.assertRedirects(response, reverse("core:milestone-list", kwargs={"project_pk": project.pk}))
+        self.assertFalse(Milestone.objects.filter(pk=milestone.pk).exists())
+
+    def test_deleting_milestone_keeps_task_and_clears_assignment(self):
+        """Deleting a milestone leaves assigned tasks in the project."""
+        project = Project.objects.create(name="Milestone project")
+        milestone = Milestone.objects.create(project=project, title="Delete milestone")
+        task = Task.objects.create(project=project, milestone=milestone, title="Keep this task")
+
+        response = self.client.post(reverse("core:milestone-delete", kwargs={"pk": milestone.pk}))
+
+        self.assertRedirects(response, reverse("core:milestone-list", kwargs={"project_pk": project.pk}))
+        task.refresh_from_db()
+        self.assertIsNone(task.milestone)
 
 
 class RelocationTemplateTests(TestCase):
