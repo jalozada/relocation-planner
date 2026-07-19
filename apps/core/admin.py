@@ -1,10 +1,17 @@
 from django.contrib import admin
 
-from .models import DocumentType, Milestone, RelocationTemplate, RelocationTemplateDocument, RelocationTemplateTask
-
+from .models import (
+    DocumentType,
+    Milestone,
+    RelocationTemplate,
+    RelocationTemplateDocument,
+    RelocationTemplateTask,
+    Workstream,
+)
 
 admin.site.register(DocumentType)
 admin.site.register(Milestone)
+admin.site.register(Workstream)
 
 
 class RelocationTemplateDocumentInline(admin.TabularInline):
