@@ -27,8 +27,8 @@ Delete {{ milestone.title }} | Relocation Planner
             {% csrf_token %}
 
             <div class="d-flex gap-2">
-                <button class="btn btn-danger" type="submit">Delete Milestone</button>
-                <a class="btn btn-outline-secondary" href="{% url 'core:milestone-detail' milestone.pk %}">Cancel</a>
+                <button class="btn button-danger" type="submit">Delete Milestone</button>
+                <a class="btn button-outline-secondary" href="{% url 'core:milestone-detail' milestone.pk %}">Cancel</a>
             </div>
         </form>
     </div>

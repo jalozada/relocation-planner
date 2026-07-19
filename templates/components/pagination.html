@@ -1,0 +1,11 @@
+<nav class="flex items-center justify-between" aria-label="Pagination">
+    <div class="text-sm text-slate-500 dark:text-slate-400">{{ summary|default:"" }}</div>
+    <div class="flex gap-2">
+        {% if previous_href %}
+            {% include "components/button.html" with href=previous_href label="Previous" variant="button-outline-secondary" %}
+        {% endif %}
+        {% if next_href %}
+            {% include "components/button.html" with href=next_href label="Next" variant="button-outline-secondary" %}
+        {% endif %}
+    </div>
+</nav>

@@ -33,3 +33,6 @@ htmlcov/
 
 # Misc
 *.log
+
+# Tailwind standalone binary
+tools/

@@ -12,7 +12,7 @@ Milestones for {{ project.name }} | Relocation Planner
         <p class="text-muted mb-0">{{ project.name }}</p>
     </div>
 
-    <a class="btn btn-primary" href="{% url 'core:milestone-create' project.pk %}">
+    <a class="btn button-primary" href="{% url 'core:milestone-create' project.pk %}">
         Add Milestone
     </a>
 </div>
@@ -49,7 +49,7 @@ Milestones for {{ project.name }} | Relocation Planner
                         {% endif %}
 
                         <div class="mt-auto">
-                            <a class="btn btn-outline-primary" href="{% url 'core:milestone-detail' milestone.pk %}">
+                            <a class="btn button-outline-primary" href="{% url 'core:milestone-detail' milestone.pk %}">
                                 View Milestone
                             </a>
                         </div>
@@ -65,7 +65,7 @@ Milestones for {{ project.name }} | Relocation Planner
             <p class="text-muted mb-4">
                 Milestones help break the relocation into major phases.
             </p>
-            <a class="btn btn-primary" href="{% url 'core:milestone-create' project.pk %}">
+            <a class="btn button-primary" href="{% url 'core:milestone-create' project.pk %}">
                 Add Milestone
             </a>
         </div>

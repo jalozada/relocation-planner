@@ -1,0 +1,6 @@
+<a class="btn {{ variant|default:'button-primary' }} {{ class|default:'' }}" href="{{ href }}">
+    {% if icon %}
+        {% include "components/icon.html" with name=icon %}
+    {% endif %}
+    {{ label }}
+</a>

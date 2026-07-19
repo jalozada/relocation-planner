@@ -12,7 +12,7 @@ Documents for {{ project.name }} | Relocation Planner
         <p class="text-muted mb-0">{{ project.name }}</p>
     </div>
 
-    <a class="btn btn-primary" href="{% url 'core:document-create' project.pk %}">
+    <a class="btn button-primary" href="{% url 'core:document-create' project.pk %}">
         Add Document
     </a>
 </div>
@@ -49,7 +49,7 @@ Documents for {{ project.name }} | Relocation Planner
                         {% endif %}
 
                         <div class="mt-auto">
-                            <a class="btn btn-outline-primary" href="{% url 'core:document-detail' document.pk %}">
+                            <a class="btn button-outline-primary" href="{% url 'core:document-detail' document.pk %}">
                                 View Document
                             </a>
                         </div>
@@ -65,7 +65,7 @@ Documents for {{ project.name }} | Relocation Planner
             <p class="text-muted mb-4">
                 Track passports, certificates, records, and other relocation paperwork.
             </p>
-            <a class="btn btn-primary" href="{% url 'core:document-create' project.pk %}">
+            <a class="btn button-primary" href="{% url 'core:document-create' project.pk %}">
                 Add Document
             </a>
         </div>

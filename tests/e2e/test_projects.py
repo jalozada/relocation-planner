@@ -46,7 +46,7 @@ def test_create_project_shows_success_and_dashboard(page, app_url):
     page.get_by_role("link", name="View Project").click()
 
     expect(page.get_by_role("heading", name=project_name)).to_be_visible()
-    expect(page.get_by_role("link", name="Dashboard")).to_be_visible()
+    expect(page.locator("#main-content").get_by_role("link", name="Dashboard")).to_be_visible()
     expect(page.get_by_text("Created by the Playwright browser test.")).to_be_visible()
 
 
@@ -95,5 +95,5 @@ def test_create_project_milestone_updates_dashboard(page, app_url):
     page.get_by_role("link", name="Back to milestones").click()
     expect(page.get_by_text(milestone_title)).to_be_visible()
 
-    page.get_by_role("link", name="Dashboard", exact=True).click()
+    page.locator("#main-content").get_by_role("link", name="Dashboard", exact=True).click()
     expect(page.get_by_text(milestone_title)).to_be_visible()

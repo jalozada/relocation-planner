@@ -1,0 +1,18 @@
+<div class="card border-0 shadow-sm">
+    <div class="card-body py-12 text-center">
+        {% if icon %}
+            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-200">
+                {% include "components/icon.html" with name=icon class="h-6 w-6" %}
+            </div>
+        {% endif %}
+        <h2 class="text-lg font-semibold text-slate-950 dark:text-white">{{ title }}</h2>
+        {% if message %}
+            <p class="mx-auto mt-2 max-w-xl text-sm text-slate-500 dark:text-slate-400">{{ message }}</p>
+        {% endif %}
+        {% if action_href and action_label %}
+            <div class="mt-5">
+                {% include "components/button.html" with href=action_href label=action_label icon=action_icon %}
+            </div>
+        {% endif %}
+    </div>
+</div>
