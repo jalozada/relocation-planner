@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 
 class Project(models.Model):
@@ -13,6 +14,31 @@ class Project(models.Model):
         """Return the project name for the Django admin and shell."""
         return self.name
 
+class Workstream(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="workstreams",
+    )
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, blank=True)
+    icon = models.CharField(max_length=50, blank=True)
+    color = models.CharField(max_length=30, default="blue")
+    description = models.TextField(blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["display_order", "name"]
+        unique_together = ("project", "slug")
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 class Task(models.Model):
     """A task that belongs to a relocation project."""
@@ -22,6 +48,15 @@ class Task(models.Model):
         on_delete=models.CASCADE,
         related_name="tasks",
     )
+
+    workstream = models.ForeignKey(
+        "Workstream",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+    )
+
     milestone = models.ForeignKey(
         "Milestone",
         on_delete=models.SET_NULL,
@@ -29,6 +64,7 @@ class Task(models.Model):
         null=True,
         related_name="tasks",
     )
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     completed = models.BooleanField(default=False)

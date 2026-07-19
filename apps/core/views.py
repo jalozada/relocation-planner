@@ -8,8 +8,11 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 
 from .forms import DocumentForm, MilestoneForm, PersonForm, ProjectForm, TaskForm
 from .models import Document, Milestone, Person, Project, Task
-from .services import apply_relocation_template, build_project_dashboard_context
-
+from .services import (
+    apply_relocation_template, 
+    build_project_dashboard_context, 
+    create_default_workstreams,
+)
 
 def home(request):
     """Render the application home page."""
@@ -62,9 +65,13 @@ class ProjectCreateView(SuccessMessageMixin, CreateView):
         """Create the project and apply the selected relocation template."""
         with transaction.atomic():
             response = super().form_valid(form)
+
+            create_default_workstreams(self.object)
+
             relocation_template = form.cleaned_data.get("relocation_template")
             if relocation_template:
                 apply_relocation_template(self.object, relocation_template)
+                
         return response
 
 
