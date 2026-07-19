@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+Delete {{ document }} | Relocation Planner
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h1 class="h2 mb-1">Delete Document</h1>
+    <p class="text-muted mb-0">Review this carefully before removing this document requirement.</p>
+</div>
+
+<div class="card border-danger shadow-sm">
+    <div class="card-header text-bg-danger">
+        Permanent deletion
+    </div>
+    <div class="card-body">
+        <p class="lead mb-3">
+            Are you sure you want to delete <strong>{{ document }}</strong>?
+        </p>
+        <p class="text-muted">
+            This will remove the document requirement from {{ document.project.name }}. This action cannot be undone.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-danger" type="submit">Delete Document</button>
+                <a class="btn btn-outline-secondary" href="{% url 'core:document-detail' document.pk %}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

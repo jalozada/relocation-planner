@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ task.title }} | Relocation Planner
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">{{ task.title }}</h1>
+        <p class="text-muted mb-0">{{ task.project.name }}</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{% url 'core:task-update' task.pk %}">
+            Edit
+        </a>
+        <a class="btn btn-outline-danger" href="{% url 'core:task-delete' task.pk %}">
+            Delete
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center gap-3">
+        <span class="fw-semibold">Task Details</span>
+        {% if task.completed %}
+            <span class="badge text-bg-success">Complete</span>
+        {% else %}
+            <span class="badge text-bg-secondary">Outstanding</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        {% if task.description %}
+            <p class="mb-0">{{ task.description }}</p>
+        {% else %}
+            <p class="mb-0 text-muted">No description provided.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'core:task-list' task.project.pk %}">Back to tasks</a>
+</div>
+
+{% endblock %}

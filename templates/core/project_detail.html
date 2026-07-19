@@ -24,6 +24,51 @@
     </div>
 </div>
 
+<div class="nav nav-pills mb-4">
+    <a class="nav-link active" href="{% url 'core:project-detail' project.pk %}">Dashboard</a>
+    <a class="nav-link" href="{% url 'core:person-list' project.pk %}">People</a>
+    <a class="nav-link" href="{% url 'core:document-list' project.pk %}">Documents</a>
+    <a class="nav-link" href="{% url 'core:task-list' project.pk %}">Tasks</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">People</div>
+                <div class="display-6 fw-bold">{{ people_count }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Documents</div>
+                <div class="display-6 fw-bold">{{ documents_count }}</div>
+                <div class="small text-muted">{{ received_documents_count }} received • {{ pending_documents_count }} pending</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Tasks</div>
+                <div class="display-6 fw-bold">{{ tasks_count }}</div>
+                <div class="small text-muted">{{ completed_tasks_count }} complete • {{ outstanding_tasks_count }} outstanding</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Open Work</div>
+                <div class="display-6 fw-bold">{{ pending_documents_count|add:outstanding_tasks_count }}</div>
+                <div class="small text-muted">Pending documents and tasks</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white fw-semibold">
         Project Notes
@@ -40,14 +85,15 @@
 <div class="card border-0 shadow-sm mt-4">
     <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div class="fw-semibold">People</div>
-        <a class="btn btn-sm btn-primary" href="{% url 'core:person-create' project.pk %}">
-            Add Person
-        </a>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'core:person-list' project.pk %}">Manage People</a>
+            <a class="btn btn-sm btn-primary" href="{% url 'core:person-create' project.pk %}">Add Person</a>
+        </div>
     </div>
     <div class="card-body">
-        {% if project.people.all %}
+        {% if recent_people %}
             <div class="row g-3">
-                {% for person in project.people.all %}
+                {% for person in recent_people %}
                     <div class="col-12 col-md-6">
                         <div class="border rounded p-3 h-100">
                             <div class="d-flex justify-content-between align-items-start gap-3">
@@ -64,6 +110,84 @@
             </div>
         {% else %}
             <p class="text-muted mb-0">No people have been added to this project yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div class="fw-semibold">Documents</div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'core:document-list' project.pk %}">Manage Documents</a>
+            <a class="btn btn-sm btn-primary" href="{% url 'core:document-create' project.pk %}">Add Document</a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if recent_documents %}
+            <div class="row g-3">
+                {% for document in recent_documents %}
+                    <div class="col-12 col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <h2 class="h6 mb-1">
+                                        <a href="{% url 'core:document-detail' document.pk %}">{{ document.document_type }}</a>
+                                    </h2>
+                                    <p class="text-muted mb-0">
+                                        {% if document.person %}{{ document.person }}{% else %}Project-level document{% endif %}
+                                    </p>
+                                </div>
+                                {% if document.received %}
+                                    <span class="badge text-bg-success">Received</span>
+                                {% else %}
+                                    <span class="badge text-bg-warning">Pending</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No documents have been added to this project yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div class="fw-semibold">Tasks</div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'core:task-list' project.pk %}">Manage Tasks</a>
+            <a class="btn btn-sm btn-primary" href="{% url 'core:task-create' project.pk %}">Add Task</a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if recent_tasks %}
+            <div class="row g-3">
+                {% for task in recent_tasks %}
+                    <div class="col-12 col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <h2 class="h6 mb-1">
+                                        <a href="{% url 'core:task-detail' task.pk %}">{{ task.title }}</a>
+                                    </h2>
+                                    {% if task.description %}
+                                        <p class="text-muted mb-0">{{ task.description }}</p>
+                                    {% endif %}
+                                </div>
+                                {% if task.completed %}
+                                    <span class="badge text-bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">Outstanding</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No tasks have been added to this project yet.</p>
         {% endif %}
     </div>
 </div>
